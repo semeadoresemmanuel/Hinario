@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#121212">
+    <title>Hinário Semeadores</title>
+    <link rel="icon" type="image/svg+xml" href="icons/favicon.svg">
+    <link rel="manifest" href="manifest.json">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+    <style>
+@font-face {
+    font-family: 'Montserrat-Black';
+    src: url('font/Montserrat-Black.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Montserrat-Medium';
+    src: url('font/Montserrat-Medium.ttf') format('truetype');
+}
+
+:root {
+    --primary: #F7F7F7;
+    --secondary: #000000;
+    --accent: #00cc00; /* Standard Dark Mode Green */
+    --accent-glow: rgba(0, 204, 0, 0.4);
+    --bg-color: #121212;
+    --text-color: #F7F7F7;
+    --card-bg: rgba(247, 247, 247, 0.05);
+    --card-glass: blur(12px);
+    --border-color: rgba(247, 247, 247, 0.2);
+    --input-bg: rgba(247, 247, 247, 0.1);
+}
+
+[data-theme="light"] {
+    --bg-color: #f7f7f7;
+    --text-color: #121212;
+    --card-bg: rgba(18, 18, 18, 0.05);
+    --border-color: rgba(18, 18, 18, 0.1);
+    --input-bg: rgba(18, 18, 18, 0.1);
+    --accent: #00cc00;
+}
+
+[data-theme="light"] .listen-on-label,
+[data-theme="light"] .listen-on-label *,
+[data-theme="light"] .song-header-bar h2,
+[data-theme="light"] .song-number,
+[data-theme="light"] #search-overlay .number-highlight,
+[data-theme="light"] #back-to-menu-btn,
+[data-theme="light"] #song-back-btn,
+[data-theme="light"] .chord {
+    color: var(--accent) !important;
+}
+
+[data-theme="light"] #search-input::placeholder {
+    color: rgba(0, 204, 0, 0.4);
+}
+
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Montserrat-Black', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    background-color: var(--bg-color) !important;
+    color: var(--text-color);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Base App Layout */
+.app-container {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+[data-theme="light"] .app-container {
+    background: #f7f7f7;
+}
+
+/* Views Handling */
+.view {
+    display: none !important;
+    animation: fadeIn 0.3s ease;
+}
+.view.active {
+    display: flex !important;
+    flex-direction: column;
+    min-height: 100vh;
+}
+.hidden { display: none !important; }
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Main Menu View Layout */
+.menu-view {
+    padding: 7.5%;
+}
+
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+.title-logo-wrapper {
+    position: relative;
+    width: 50%;
+    max-width: 240px;
+}
+.title-logo {
+    width: 100%;
+}
+.theme-btn-wrapper {
+    position: relative;
+    width: 56px;
+    height: 30px;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    padding: 0 3px;
+    box-sizing: border-box;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: background-color 500ms, border-color 500ms;
+    overflow: hidden;
+    border: 1px solid transparent;
+    background: none;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+}
+.theme-btn-thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 300ms cubic-bezier(0.4, 0.0, 0.2, 1), background-color 300ms ease, box-shadow 300ms ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.theme-btn-thumb svg {
+    width: 14px;
+    height: 14px;
+    display: block;
+}
+[data-theme="dark"] .theme-btn-wrapper {
+    background-color: #262626ff;
+    border-color: transparent;
+}
+[data-theme="light"] .theme-btn-wrapper {
+    background-color: #e2e2e2;
+    border-color: transparent;
+}
+[data-theme="dark"] .theme-btn-thumb {
+    background-color: #00cc00ff;
+    transform: translateX(26px);
+}
+[data-theme="light"] .theme-btn-thumb {
+    background-color: #00cc00;
+    transform: translateX(0);
+}
+[data-theme="dark"] .theme-btn-thumb .sun-icon {
+    display: none;
+}
+[data-theme="dark"] .theme-btn-thumb .moon-icon {
+    display: block;
+    color: #121212ff;
+}
+[data-theme="light"] .theme-btn-thumb .sun-icon {
+    display: block;
+    color: #F7F7F7;
+}
+[data-theme="light"] .theme-btn-thumb .moon-icon {
+    display: none;
+}
+
+.center-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 40px 0;
+}
+.musical-note-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 80px;
+    cursor: pointer;
+    margin-bottom: 12px;
+}
+.musical-note-img {
+    width: 100%;
+}
+.search-img-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 80px;
+    cursor: pointer;
+    margin-bottom: 40px;
+}
+.search-img {
+    width: 100%;
+}
+
+.listen-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.listen-on-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.spotify-yt-wrapper {
+    position: relative;
+    width: 110px;
+    margin-top: 6px;
+    background: transparent;
+    border: 1px solid #00cc00;
+    border-radius: 30px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.spotify-yt-wrapper::after {
+    content: '';
+    position: absolute;
+    top: calc(50% - 12px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1px;
+    height: 24px;
+    background-color: #00cc00;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.player-layer-flex {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    justify-items: center;
+    align-items: center;
+    box-sizing: border-box;
+    padding: 0;
+    z-index: 10;
+    transform: translateY(-1px);
+}
+.flex-btn {
+    width: 28px;
+    height: 28px;
+    display: block;
+    position: relative;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.2s ease;
+}
+
+@media (hover: hover) {
+    .player-layer-flex a:nth-child(1):hover {
+        transform: scale(1.08);
+        filter: drop-shadow(0 4px 10px var(--accent-glow));
+    }
+}
+.player-layer-flex a.neon-active:nth-child(1) {
+    transform: scale(1.18) !important;
+    filter: drop-shadow(0 0 18px var(--accent)) brightness(1.4) !important;
+}
+
+@media (hover: hover) {
+    .player-layer-flex a:nth-child(2):hover {
+        transform: scale(1.08);
+        filter: drop-shadow(0 4px 10px var(--accent-glow));
+    }
+}
+.player-layer-flex a.neon-active:nth-child(2) {
+    transform: scale(1.18) !important;
+    filter: drop-shadow(0 0 18px var(--accent)) brightness(1.4) !important;
+}
+.player-layer {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.clickable {
+    cursor: pointer;
+}
+.hover-scale {
+    transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+@media (hover: hover) {
+    #list-songs-btn:hover, #search-songs-btn:hover {
+        filter: drop-shadow(0 4px 10px var(--accent-glow));
+    }
+}
+#list-songs-btn.neon-active, #search-songs-btn.neon-active {
+    filter: drop-shadow(0 0 18px var(--accent)) brightness(1.4) !important;
+}
+@media (hover: hover) {
+    .hover-scale:hover {
+        transform: scale(1.05);
+    }
+}
+.hover-scale:active {
+    transform: scale(0.95);
+}
+
+#list-songs-btn.neon-active, #search-songs-btn.neon-active,
+#list-songs-btn:active, #search-songs-btn:active {
+    transform: scale(1.18) !important;
+}
+
+
+
+
+/* List View */
+#view-list {
+    padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+}
+.list-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 4px;
+    margin-left: -6px;
+    transition: margin 0.3s ease;
+}
+#view-list.search-centered .list-header {
+    margin: auto 0;
+}
+#view-list.search-centered .list-content {
+    display: none;
+}
+.search-input-container {
+    flex: 1;
+    position: relative;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    backdrop-filter: var(--card-glass);
+    transition: border-color 0.2s;
+    display: flex;
+    align-items: center;
+}
+.search-input-container:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 10px var(--accent-glow);
+}
+#search-overlay {
+    position: absolute;
+    left: 0; right: 0; top: 0; bottom: 0;
+    padding: 12px 16px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text-color);
+    pointer-events: none;
+    white-space: pre;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    text-transform: uppercase;
+}
+#search-overlay .number-highlight {
+    color: var(--accent) !important;
+}
+#search-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: none;
+    background: transparent;
+    color: transparent;
+    caret-color: var(--text-color);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    outline: none;
+    text-transform: uppercase;
+}
+#search-input::placeholder {
+    color: rgba(0, 204, 0, 0.2);
+}
+.list-content {
+    flex: 1;
+    overflow-y: auto;
+}
+.plain-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.song-item {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.95rem;
+    padding: 16px 4px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: color 0.2s, opacity 0.2s;
+    font-weight: 800;
+    color: var(--text-color);
+    text-transform: uppercase;
+    transform: translateZ(0);
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.song-item:hover {
+    opacity: 0.8;
+}
+.song-number {
+    color: var(--accent) !important;
+}
+
+/* Standard Buttons for Views */
+.icon-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: background 0.2s;
+    flex-shrink: 0;
+    position: relative;
+}
+.icon-btn:hover {
+    background: var(--input-bg);
+}
+.icon-btn svg {
+    width: 24px;
+    height: 24px;
+}
+.icon-btn img.back-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+#back-to-menu-btn, #song-back-btn {
+    color: var(--accent);
+}
+
+/* Single Song View */
+#view-song {
+    padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.song-header-bar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background-color: #121212;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    margin: 0 -20px 24px -20px;
+    transition: background 0.3s ease, padding 0.3s ease;
+}
+
+[data-theme="light"] .song-header-bar {
+    background-color: #F7F7F7;
+}
+
+.song-header-bar::after {
+    content: '';
+    width: 40px;
+    flex-shrink: 0;
+    transition: width 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+.song-header-bar.scrolled::after {
+    width: 0;
+}
+
+#song-back-btn {
+    transition: opacity 0.2s ease, width 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    color: var(--accent);
+    overflow: hidden;
+}
+
+.song-header-bar.scrolled {
+    padding: 8px 12px;
+}
+
+.song-header-bar.scrolled #song-back-btn {
+    width: 0;
+    opacity: 0;
+    padding: 0;
+    pointer-events: none;
+}
+
+.song-title-group {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 8px;
+    overflow: hidden;
+}
+
+.song-header-bar h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(0.6rem, 3.5vw, 0.85rem) !important;
+    font-weight: 700;
+    width: 100%;
+    text-align: center;
+    white-space: nowrap;
+    color: var(--accent) !important;
+    text-transform: uppercase;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.song-header-bar h3 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-align: center;
+    color: var(--text-color);
+    text-transform: uppercase;
+    margin-top: 4px;
+    letter-spacing: 0.5px;
+    opacity: 0.8;
+    max-height: 20px;
+    transition: opacity 0.2s ease, margin-top 0.3s ease, max-height 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+.song-header-bar.scrolled h3 {
+    max-height: 0;
+    margin-top: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.controls-bar {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    max-width: 220px;
+    margin: -16px auto 24px auto;
+    align-items: flex-end;
+}
+
+.font-adjust-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.font-adjust-labels {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+    align-items: flex-end;
+    justify-items: center;
+    height: 20px;
+}
+
+.font-adjust-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+    justify-items: center;
+}
+
+.font-adjust-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 900;
+    color: var(--text-color);
+    letter-spacing: 0.5px;
+    line-height: 1;
+    text-transform: uppercase;
+}
+.font-adjust-label.font-small {
+    font-size: 0.60rem;
+}
+.font-adjust-label.font-large {
+    font-size: 0.95rem;
+}
+
+.font-triangle-btn {
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent);
+    transition: filter 0.15s ease, opacity 0.2s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    padding: 0;
+    margin: 0;
+}
+
+.font-triangle-btn svg {
+    display: block;
+}
+
+.font-triangle-btn:active {
+    filter: drop-shadow(0 0 6px var(--accent)) drop-shadow(0 0 12px var(--accent));
+}
+
+@media (hover: hover) {
+    .font-triangle-btn:hover {
+        filter: drop-shadow(0 0 4px var(--accent));
+    }
+}
+
+.chord-toggle-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.chord-toggle-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 900;
+    color: var(--text-color);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    height: 20px;
+    display: flex;
+    align-items: flex-end;
+}
+
+.toggle-chords-wrapper {
+    position: relative;
+    width: 46px;
+    height: 24px;
+    border-radius: 12px;
+    border: 2px solid var(--accent);
+    background-color: var(--accent);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    box-sizing: border-box;
+    opacity: 0.25;
+}
+
+.toggle-chords-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: var(--bg-color);
+    transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1), background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+@media (hover: hover) {
+    .toggle-chords-wrapper:hover {
+        opacity: 0.7;
+    }
+}
+
+.toggle-chords-wrapper.chords-active {
+    opacity: 1;
+    border-color: var(--accent);
+    background-color: var(--accent);
+}
+
+.toggle-chords-wrapper.chords-active::after {
+    transform: translateX(22px);
+    background-color: var(--bg-color);
+}
+
+.song-lyrics {
+    font-family: 'Montserrat-Medium', sans-serif;
+    font-size: 0.75rem;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-weight: normal;
+    letter-spacing: 0.5px;
+    padding-bottom: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.chord, .lyric-marker {
+    color: var(--accent);
+    font-weight: 700;
+}
+.lyric-marker {
+    color: var(--accent);
+}
+.song-lyrics.no-chords .chord {
+    display: none;
+}
+
+#fab-back-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin-left: -8px;
+    align-self: flex-start;
+    cursor: pointer;
+    
+    /* Layout properties (collapsed by default) */
+    height: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    overflow: hidden;
+    
+    /* Animation base state (invisible) */
+    opacity: 0;
+    transform: translateY(10px) scale(0.9);
+    pointer-events: none;
+    
+    /* Transition opacity/transform for fade-in, and hover filter */
+    transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                filter 0.2s ease;
+}
+
+#fab-back-btn.visible {
+    height: 40px;
+    margin-top: 12px;
+    margin-bottom: 40px;
+}
+
+#fab-back-btn.fade-in {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+
+@media (max-height: 600px) and (orientation: landscape) {
+    .song-header-bar {
+        margin-bottom: 12px;
+    }
+    .controls-bar {
+        margin-bottom: 12px;
+    }
+}
+    </style>
+</head>
+<body>
+    <div id="app" class="app-container">
+        <!-- Main Menu -->
+        <div id="view-menu" class="view active menu-view">
+            <header class="top-bar">
+                <div class="title-logo-wrapper" id="title-img">
+                    <img src="elements/title.svg" alt="Hinário Semeadores" class="title-logo">
+                </div>
+                <button id="theme-btn" class="theme-btn-wrapper clickable" aria-label="Alternar Tema" title="Alternar Tema">
+                    <div class="theme-btn-thumb">
+                        <!-- Sun Icon (Light Mode) -->
+                        <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="4" fill="currentColor"/>
+                            <path d="M12 2v2"/>
+                            <path d="M12 20v2"/>
+                            <path d="m4.93 4.93 1.41 1.41"/>
+                            <path d="m17.66 17.66 1.41 1.41"/>
+                            <path d="M2 12h2"/>
+                            <path d="M20 12h2"/>
+                            <path d="m6.34 17.66-1.41 1.41"/>
+                            <path d="m19.07 4.93-1.41 1.41"/>
+                        </svg>
+                        <!-- Moon Icon (Dark Mode) -->
+                        <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+                        </svg>
+                    </div>
+                </button>
+            </header>
+
+            <main class="center-content">
+                <div id="list-songs-btn" class="clickable hover-scale musical-note-wrapper">
+                    <img src="elements/playlist.svg" alt="List Songs" class="musical-note-img">
+                </div>
+                <div id="search-songs-btn" class="clickable hover-scale search-img-wrapper">
+                    <img src="elements/search.svg" alt="Search" class="search-img">
+                </div>
+                
+                <div class="listen-group">
+                    <span class="listen-on-label">OUÇA NO</span>
+                    <div class="spotify-yt-wrapper">
+                        <div class="player-layer-flex">
+                            <a href="https://open.spotify.com/playlist/0fKQcuu33LN4n60bzSfe4M?si=dWaaqms0SaKu7E1L6oId9Q" target="_blank" class="hover-scale flex-btn">
+                                <img src="elements/spotify.svg" alt="Spotify" class="player-layer">
+                            </a>
+                            <a href="https://music.youtube.com/playlist?list=PLp60cTWVfxYJrubwnD-SVj-THRCNt8RNB&si=BBA1THn67yrKvJ0Q" target="_blank" class="hover-scale flex-btn">
+                                <img src="elements/yt_music.svg" alt="YouTube Music" class="player-layer">
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+
+        </div>
+
+        <!-- List View -->
+        <div id="view-list" class="view hidden">
+            <header class="list-header">
+                <button id="back-to-menu-btn" class="icon-btn" aria-label="Voltar">
+                    <img src="elements/back.svg" alt="Voltar" class="back-icon hover-scale">
+                </button>
+                <div class="search-input-container" id="search-input-container">
+                    <div id="search-overlay"></div>
+                    <input type="text" id="search-input" placeholder="BUSCAR MÚSICA">
+                </div>
+            </header>
+
+            <main class="list-content">
+                <ul id="songs-list" class="plain-list">
+                    <!-- Injected via JS -->
+                </ul>
+            </main>
+        </div>
+
+        <!-- Song View -->
+        <div id="view-song" class="view hidden">
+            <div class="song-header-bar">
+                <button id="song-back-btn" class="icon-btn" aria-label="Voltar">
+                    <img src="elements/back.svg" alt="Voltar" class="back-icon hover-scale">
+                </button>
+                <div class="song-title-group">
+                    <h2 id="song-title">Song Title</h2>
+                    <h3 id="song-author"></h3>
+                </div>
+            </div>
+            
+            <div class="controls-bar">
+                <div class="font-adjust-group">
+                    <div class="font-adjust-labels">
+                        <span class="font-adjust-label font-small">A</span>
+                        <span class="font-adjust-label font-large">A</span>
+                    </div>
+                    <div class="font-adjust-buttons">
+                        <button id="font-decrease-svg" class="font-triangle-btn clickable" aria-label="Diminuir fonte"><svg width="14" height="10" viewBox="0 0 14 10" fill="currentColor"><polygon points="7,10 0,0 14,0"/></svg></button>
+                        <button id="font-increase-svg" class="font-triangle-btn clickable" aria-label="Aumentar fonte"><svg width="14" height="10" viewBox="0 0 14 10" fill="currentColor"><polygon points="7,0 14,10 0,10"/></svg></button>
+                    </div>
+                </div>
+
+                <div class="chord-toggle-container">
+                    <span class="chord-toggle-label">CIFRA</span>
+                    <div id="toggle-chords-svg-wrapper" class="toggle-chords-wrapper clickable hover-scale chords-inactive">
+                        <!-- CSS Toggle -->
+                    </div>
+                </div>
+            </div>
+            <pre id="song-content" class="song-lyrics no-chords"></pre>
+            
+            <button id="fab-back-btn" class="icon-btn hover-scale" aria-label="Voltar para a lista" title="Voltar">
+                <img src="elements/back.svg" alt="Voltar" class="back-icon">
+            </button>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+    <script>
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    for (let registration of registrations) {
+                        registration.unregister();
+                        console.log("Unregistered service worker on localhost to prevent development caching.");
+                    }
+                });
+            }
+        } else if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(err => console.error(err));
+            });
+        }
+    </script>
+</body>
+</html>
