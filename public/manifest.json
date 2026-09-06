@@ -3,9 +3,12 @@
     "short_name": "Hinário Digital",
     "description": "Hinário Digital",
     "start_url": "./index.html",
-    "display": "standalone",
-    "background_color": "#121212",
-    "theme_color": "#121212",
+    "scope": "./",
+    "id": "./index.html",
+    "display": "fullscreen",
+    "orientation": "portrait-primary",
+    "background_color": "#f7f7f7",
+    "theme_color": "#f7f7f7",
     "icons": [
         {
             "src": "favicon.svg",
