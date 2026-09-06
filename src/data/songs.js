@@ -40,7 +40,7 @@ for (const path in chordFiles) {
   });
 }
 
-const songsMap = {};
+const songs = [];
 
 for (const path in lyricFiles) {
   const filename = path.split('/').pop();
@@ -84,14 +84,13 @@ for (const path in lyricFiles) {
   const lyricsContent = lyricFiles[path];
   const chordsContent = matchedChord ? matchedChord.content : lyricsContent;
 
-  songsMap[title] = {
+  songs.push({
     title: title,
     lyrics: lyricsContent.trim(),
     chords: chordsContent.trim(),
     author: author
-  };
+  });
 }
 
-const songs = Object.values(songsMap);
 export default songs;
 
