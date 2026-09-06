@@ -1,13 +1,15 @@
 import songs from './data/songs.js';
+import checkIcon from './assets/elements/check.svg';
+import trashIcon from './assets/elements/trash.svg';
 
 // Pre-compiled chord detection patterns for optimal performance
 const CHORD_UNIT_SOURCE = '[(]?[A-G][b#]?(?:m|M|maj|min|dim|aug|sus|add|alt|[2-9]|11|13|\\+|M|F)*(?:\\([#b0-9a-zA-Z\\+\\-]*\\))?(?:\\/(?:[A-G][b#]?|[0-9]+)(?:m|M|maj|min|dim|aug|sus|add|alt|[2-9]|11|13|\\+|M|F)*(?:\\([#b0-9a-zA-Z\\+\\-]*\\))?)?[)]?';
 const CHORD_PATTERN = new RegExp('^(' + CHORD_UNIT_SOURCE + ')+$');
-const SPECIAL_TOKENS = [
-    '||:', ':||', '|', '...', '2x', '3x', '2X', '3X', '(2x)', '(3x)', '(2X)', '(3X)', 
-    '[2X]', '[2x]', '[3X]', '[3x]', '[REFRÃO]', '[refrão]', 'REFRÃO', '[INTRO]', 'INTRO',
+const SPECIAL_TOKENS = new Set([
+    '||:', ':||', '|', '...', '2X', '3X', '(2X)', '(3X)', 
+    '[2X]', '[3X]', '[REFRÃO]', 'REFRÃO', '[INTRO]', 'INTRO',
     '[SOLO]', 'SOLO', '[FIM]', 'FIM', '[PONTE]', 'PONTE', '1ª', '2ª', 'VEZ', 'VEZES', 'VOLTA'
-];
+]);
 
 // Pre-compiled regex patterns for punctuation and lyric markers
 const PUNCTUATION_PATTERN = /^[.,\/#!$%\^&\*;:{}=\-_`~()]+|[.,\/#!$%\^&\*;:{}=\-_`~()]+$/g;
@@ -86,30 +88,32 @@ document.addEventListener('DOMContentLoaded', () => {
         return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     }
 
+    // Pre-map songs list once to avoid repeated allocations on every search keystroke
+    const preparedSongsList = validSongs.map((song, idx) => {
+        const numStr = String(idx + 1).padStart(2, '0');
+        const cleanTitle = song.title.toUpperCase();
+        return { 
+            numStr: numStr,
+            originalText: `<span class="song-number">${numStr}.</span> ${cleanTitle}`, 
+            hybridSongObj: { 
+                title: cleanTitle, 
+                author: song.author, 
+                lyrics: song.lyrics, 
+                chords: song.chords
+            },
+            originalIndex: idx,
+            normalizedTitle: removeAccents(cleanTitle.toLowerCase())
+        };
+    });
+
     // Render List
     function renderSongs(filter = '') {
         songsList.innerHTML = '';
         const searchWord = removeAccents(filter.toLowerCase().trim());
-        
-        let listToRender = validSongs.map((song, idx) => {
-            const numStr = String(idx + 1).padStart(2, '0');
-            const cleanTitle = song.title.toUpperCase();
-            return { 
-                numStr: numStr,
-                originalText: `<span class="song-number">${numStr}.</span> ${cleanTitle}`, 
-                hybridSongObj: { 
-                    title: cleanTitle, 
-                    author: song.author, 
-                    lyrics: song.lyrics, 
-                    chords: song.chords
-                },
-                originalIndex: idx
-            };
-        });
 
         if (searchWord === '') {
             // Render all in standard numerical sequence
-            listToRender.forEach((item) => {
+            preparedSongsList.forEach((item) => {
                 const li = document.createElement('li');
                 li.className = 'song-item';
                 li.innerHTML = item.originalText;
@@ -123,8 +127,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Filter and score for search accuracy
         let titleMatches = [];
 
-        listToRender.forEach((item) => {
-            const normalizedTitle = removeAccents(item.hybridSongObj.title.toLowerCase());
+        preparedSongsList.forEach((item) => {
+            const normalizedTitle = item.normalizedTitle;
             
             let score = 0;
             const isNumberSearch = /^\d+$/.test(searchWord);
@@ -184,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const cleanW = w.replace(PUNCTUATION_PATTERN, "");
             if (CHORD_PATTERN.test(w) || CHORD_PATTERN.test(cleanW)) {
                 chordCount++;
-            } else if (SPECIAL_TOKENS.includes(w.toUpperCase()) || SPECIAL_TOKENS.includes(cleanW.toUpperCase())) {
+            } else if (SPECIAL_TOKENS.has(w.toUpperCase()) || SPECIAL_TOKENS.has(cleanW.toUpperCase())) {
                 specialCount++;
             }
         });
@@ -247,7 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function fitTitleText() {
         if (!viewSong.classList.contains('active')) return;
 
-        const titleEl = document.getElementById('song-title');
+        const titleEl = songTitleEl;
         const parent = titleEl.parentElement;
         
         // Measure real parent width avoiding 0 cases caused by DOM timings
@@ -666,10 +670,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 <p class="bug-report-item-desc">${bug.description}</p>
                 <div class="bug-report-item-footer">
                     <button class="bug-report-item-resolve" data-index="${index}" aria-label="Resolvido">
-                        <img src="src/assets/elements/check.svg" alt="Resolvido" class="check-icon">
+                        <img src="${checkIcon}" alt="Resolvido" class="check-icon">
                     </button>
                     <button class="bug-report-item-trash" data-index="${index}" aria-label="Apagar erro">
-                        <img src="src/assets/elements/trash.svg" alt="Apagar" class="trash-icon">
+                        <img src="${trashIcon}" alt="Apagar" class="trash-icon">
                     </button>
                 </div>
             </div>
@@ -1037,6 +1041,34 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', () => {
         updateFabBackBtnVisibility();
         updateFabBackListBtnVisibility();
+    });
+
+    // Dismiss modals or dropdowns with Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            const settingsDropdownEl = document.getElementById('settings-dropdown');
+            const settingsBtnEl = document.getElementById('settings-btn');
+            if (settingsDropdownEl && settingsDropdownEl.classList.contains('active')) {
+                settingsDropdownEl.classList.remove('active');
+                if (settingsBtnEl) settingsBtnEl.classList.remove('active');
+            }
+            const passwordPromptModalEl = document.getElementById('password-prompt-modal');
+            if (passwordPromptModalEl && passwordPromptModalEl.classList.contains('active')) {
+                passwordPromptModalEl.classList.remove('active');
+            }
+            if (bugReportModal && bugReportModal.classList.contains('active')) {
+                bugReportModal.classList.remove('active');
+            }
+            if (bugConfirmModal && bugConfirmModal.classList.contains('active')) {
+                bugConfirmModal.classList.remove('active');
+            }
+            if (actionConfirmModal && actionConfirmModal.classList.contains('active')) {
+                actionConfirmModal.classList.remove('active');
+            }
+            if (bugsListModal && bugsListModal.classList.contains('active')) {
+                bugsListModal.classList.remove('active');
+            }
+        }
     });
 
     // Initial Render fallback

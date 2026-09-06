@@ -17,7 +17,7 @@
 :root {
     --primary: #F7F7F7;
     --secondary: #000000;
-    --accent: #00cc00ff; /* Standard Dark Mode Green */
+    --accent: #00CC00; /* Standard Dark Mode Green */
     --accent-glow: rgba(0, 204, 0, 0.4);
     --bg-color: #121212;
     --text-color: #F7F7F7;
@@ -103,6 +103,7 @@ input, button, select, textarea {
 body.menu-active {
     overflow: hidden;
     height: 100vh;
+    height: 100dvh;
     position: fixed;
     width: 100%;
 }
@@ -110,11 +111,13 @@ body.menu-active {
 body.no-scroll {
     overflow: hidden;
     height: 100vh;
+    height: 100dvh;
 }
 
 .app-container {
     width: 100%;
     min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     flex-direction: column;
     background-color: var(--bg-color);
@@ -129,6 +132,7 @@ body.no-scroll {
     display: flex !important;
     flex-direction: column;
     min-height: 100vh;
+    min-height: 100dvh;
 }
 .hidden { display: none !important; }
 @keyframes fadeIn {
@@ -139,6 +143,9 @@ body.no-scroll {
 /* Main Menu View Layout */
 .menu-view {
     padding: 24px 7.5% 40px 7.5%;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
 }
 
 .top-bar {
@@ -212,7 +219,7 @@ body.no-scroll {
 [data-theme="dark"] .theme-btn-thumb .moon-icon {
     opacity: 1;
     transform: scale(1);
-    color: #00cc00;
+    color: #00CC00;
 }
 [data-theme="light"] .theme-btn-thumb .sun-icon {
     opacity: 1;
@@ -785,7 +792,6 @@ body.no-scroll {
     word-break: break-word;
     font-weight: normal;
     letter-spacing: 0.5px;
-    padding-bottom: 0;
     margin: 0;
     padding: 0;
 }
@@ -1258,7 +1264,7 @@ body.no-scroll {
 .report-messages-icon {
     width: 28px;
     height: 28px;
-    fill: #00cc00;
+    fill: #00CC00;
 }
 .report-messages-icon.hidden {
     display: none;
@@ -1280,18 +1286,14 @@ body.no-scroll {
     overflow-y: auto;
     max-height: 45vh;
     padding-right: 4px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 
-/* Custom scrollbar for bugs list wrapper */
 .bugs-list-wrapper::-webkit-scrollbar {
-    width: 4px;
-}
-.bugs-list-wrapper::-webkit-scrollbar-track {
-    background: transparent;
-}
-.bugs-list-wrapper::-webkit-scrollbar-thumb {
-    background: var(--modal-border);
-    border-radius: 2px;
+    display: none;
+    width: 0;
+    height: 0;
 }
 
 .bug-report-item {
