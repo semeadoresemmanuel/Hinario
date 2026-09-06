@@ -74,12 +74,18 @@
     margin: 0;
     padding: 0;
     -webkit-tap-highlight-color: transparent;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE/Edge */
 }
 
-::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Edge, Opera */
+html, body, * {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+::-webkit-scrollbar,
+*::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
 html {
@@ -1141,75 +1147,87 @@ body.no-scroll {
     gap: 12px;
 }
 
-/* styles for #settings-btn are inherited from .icon-btn now */
+/* Remove any circular background or outline on #settings-btn */
+#settings-btn,
+#settings-btn:hover,
+#settings-btn:active,
+#settings-btn:focus,
+#settings-btn:focus-visible,
+#settings-btn.active {
+    background: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+    border: none !important;
+}
 
 .settings-icon {
     width: 25px;
     height: 25px;
     object-fit: contain;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), filter 0.2s ease;
 }
 
 @media (hover: hover) {
     #settings-btn:hover .settings-icon {
         transform: rotate(45deg);
+        filter: drop-shadow(0 0 8px var(--accent-glow));
     }
+}
+
+#settings-btn.neon-active .settings-icon,
+#settings-btn:active .settings-icon {
+    filter: drop-shadow(0 0 6px var(--accent)) drop-shadow(0 0 16px var(--accent)) drop-shadow(0 0 28px var(--accent)) brightness(1.6) !important;
 }
 
 #settings-btn.active .settings-icon {
     transform: rotate(90deg);
+    filter: drop-shadow(0 0 8px var(--accent)) drop-shadow(0 0 16px var(--accent-glow));
 }
 
 .settings-dropdown {
     position: absolute;
-    top: calc(100% + 14px);
-    right: 0;
-    background: var(--modal-bg);
-    border: 1.2px solid var(--modal-border);
-    border-radius: 16px;
-    padding: 14px 16px;
+    top: calc(100% + 2px);
+    right: 19px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 34px 18px 16px 20px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    gap: 14px;
+    filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.25));
     z-index: 1000;
-    min-width: 180px;
+    width: 240px;
     box-sizing: border-box;
     
     /* Animation base state */
     opacity: 0;
     visibility: hidden;
-    transform: translateY(-10px) scale(0.95);
-    transform-origin: top right;
+    transform: translateY(-8px) scale(0.96);
+    transform-origin: calc(100% - 1px) 0;
     transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
                 visibility 0.25s cubic-bezier(0.4, 0, 0.2, 1),
                 transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.settings-dropdown::before {
-    content: '';
+.dropdown-balloon-svg {
     position: absolute;
-    top: -10px;
-    right: 10px;
-    width: 0;
-    height: 0;
-    border-left: 10px solid transparent;
-    border-right: 10px solid transparent;
-    border-bottom: 10px solid var(--modal-border);
-    z-index: 999;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    overflow: visible;
 }
 
-.settings-dropdown::after {
-    content: '';
-    position: absolute;
-    top: -8.8px;
-    right: 11px;
-    width: 0;
-    height: 0;
-    border-left: 9px solid transparent;
-    border-right: 9px solid transparent;
-    border-bottom: 9px solid var(--modal-bg);
-    z-index: 1001;
+.dropdown-balloon-path {
+    fill: var(--bg-color);
+    stroke: var(--accent);
+    stroke-width: 1.2px;
+    stroke-linejoin: miter;
+    vector-effect: non-scaling-stroke;
+    transition: fill 0.3s ease, stroke 0.3s ease;
 }
 
 .settings-dropdown.active {
@@ -1220,41 +1238,45 @@ body.no-scroll {
 
 .dropdown-item-row {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    gap: 20px;
+    gap: 14px;
     width: 100%;
+    position: relative;
+    z-index: 2;
 }
 
 .dropdown-item-label {
     font-family: 'Montserrat-Black', sans-serif;
-    font-size: 0.7rem;
+    font-size: 0.72rem;
     font-weight: 900;
-    letter-spacing: 1px;
+    letter-spacing: 0.8px;
     color: var(--text-color);
-    opacity: 0.8;
+    opacity: 0.85;
     white-space: nowrap;
     flex: 1;
-    text-align: center;
+    text-align: left;
     user-select: none;
     -webkit-user-select: none;
 }
 
 .dropdown-control-wrapper {
-    width: 56px; /* Largura do switch de tema */
+    width: 56px;
+    height: 32px;
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-shrink: 0;
 }
 
 #report-messages-btn {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: transparent;
     border: none;
+    border-radius: 50%;
     padding: 0;
     cursor: pointer;
     outline: none;
@@ -1262,9 +1284,10 @@ body.no-scroll {
 }
 
 .report-messages-icon {
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
     fill: #00CC00;
+    transition: fill 0.3s ease;
 }
 .report-messages-icon.hidden {
     display: none;
